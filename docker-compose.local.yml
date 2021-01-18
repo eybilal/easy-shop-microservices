@@ -1,0 +1,38 @@
+version: '3'
+services:
+  # db server
+  es-postgres-db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - PGDATA=/var/lib/postgresql/data
+    volumes:
+      - es-postgres-data:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    restart: unless-stopped # or always
+    networks:
+      - es-backend 
+
+  # db client
+  es-pgAdmin4:
+    image: dpage/pgadmin4:latest
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+    volumes:
+      - es-pgAdmin-data:/var/lib/pgAdmin
+    ports:
+      - 8000:80
+    restart: unless-stopped # or always
+
+# Volumes to be used reused across multiple services
+volumes:
+    es-postgres-data:
+    es-pgAdmin-data:
+
+# Network to be used reused across multiple services    
+networks:
+    es-backend:
+        external: true 
