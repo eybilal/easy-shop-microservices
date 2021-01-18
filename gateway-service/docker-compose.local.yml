@@ -1,0 +1,8 @@
+version: '3'
+services:
+  # service registry with eureka
+  registry-service:
+    image: eybilal/registry-service
+    ports:
+      - 8761:8761
+    restart: on-failure
