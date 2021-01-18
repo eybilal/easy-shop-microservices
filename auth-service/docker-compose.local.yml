@@ -1,0 +1,25 @@
+version: '3'
+services:
+  # service registry with eureka
+  registry-service:
+    image: eybilal/registry-service
+    ports:
+      - 8761:8761
+    restart: on-failure
+
+  # api gateway
+  gateway-service:
+    image: eybilal/gateway-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - registry-service
+    environment:
+      # gateway-service is running on a container and doesn't see
+      # the registry-service on a localhost
+      # override the property inside the application.properties file
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-service:8761/eureka
+      # Eureka will register this service using its IP Address
+      # rather than its hostname (hostname's are hash code)
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
