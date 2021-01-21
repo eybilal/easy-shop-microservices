@@ -1,0 +1,101 @@
+version: '3'
+services:
+  # registry service with eureka
+  registry-service:
+    image: eybilal/registry-service
+    ports:
+      - 8761:8761
+    restart: on-failure
+    networks:
+      - es-backend
+
+  # auth service with spring security
+  auth-service:
+    image: eybilal/auth-service
+    ports:
+      - 8081:8081
+    depends_on:
+      - registry-service
+    environment:
+      # auth-service is running on a container and doesn't see the registry-service on
+      # a localhost
+      # override the property inside the application.properties file
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-service:8761/eureka
+      # auth-service is running on a container and doesn't see the postgres-db on a localhost
+      # Override the property 'spring.datasource.url' inside the application.properties file
+      SPRING_DATASOURCE_URL: jdbc:postgresql://es-postgres-db:5432/auth-db
+      # Eureka will register this service using its IP Address
+      # rather than its hostname (hostname's are hash codes)
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
+    networks:
+      - es-backend
+
+  # customer service
+  customer-service:
+    image: eybilal/customer-service
+    ports:
+      - 8083:8083
+    depends_on:
+      - registry-service
+    environment:
+      # customer-service is running on a container and doesn't see the registry-service on
+      # a localhost
+      # override the property inside the application.properties file
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-service:8761/eureka
+      # customer-service is running on a container and doesn't see the es-postgres-db on a localhost
+      # Override the property 'spring.datasource.url' inside the application.properties file
+      SPRING_DATASOURCE_URL: jdbc:postgresql://es-postgres-db:5432/customer-db
+      # Eureka will register this service using its IP Address
+      # rather than its hostname (hostname's are hash codes)
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
+    networks:
+      - es-backend
+
+  # inventory service
+  inventory-service:
+    image: eybilal/inventory-service
+    ports:
+      - 8084:8084
+    depends_on:
+      - registry-service
+    environment:
+      # inventory-service is running on a container and doesn't see the registry-service on
+      # a localhost
+      # override the property inside the application.properties file
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-service:8761/eureka
+      # inventory-service is running on a container and doesn't see the es-postgres-db on a localhost
+      # Override the property 'spring.datasource.url' inside the application.properties file
+      SPRING_DATASOURCE_URL: jdbc:postgresql://es-postgres-db:5432/inventory-db
+      # Eureka will register this service using its IP Address
+      # rather than its hostname (hostname's are hash codes)
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
+    networks:
+      - es-backend
+
+  # api gateway
+  gateway-service:
+    image: eybilal/gateway-service
+    ports:
+      - 8080:8080
+    depends_on:
+      - registry-service
+      - auth-service
+      - customer-service
+      - inventory-service
+    environment:
+      # gateway-service is running on a container and doesn't see
+      # the registry-service on a localhost
+      # override the property inside the application.properties file
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://registry-service:8761/eureka
+      # Eureka will register this service using its IP Address
+      # rather than its hostname (hostname's are hash code)
+      EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    networks:
+      - es-backend
+
+networks:
+  es-backend:
+    external: true
