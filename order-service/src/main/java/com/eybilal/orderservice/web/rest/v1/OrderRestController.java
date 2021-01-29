@@ -1,13 +1,10 @@
-package com.eybilal.orderservice.rest.v1;
+package com.eybilal.orderservice.web.rest.v1;
 
 import com.eybilal.orderservice.client.InventoryServiceClient;
 import com.eybilal.orderservice.client.CustomerServiceClient;
-import com.eybilal.orderservice.model.entity.Order;
 import com.eybilal.orderservice.repository.OrderItemRepository;
 import com.eybilal.orderservice.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 

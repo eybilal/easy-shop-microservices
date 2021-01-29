@@ -93,6 +93,7 @@ services:
       # Eureka will register this service using its IP Address
       # rather than its hostname (hostname's are hash code)
       EUREKA_INSTANCE_PREFER_IP_ADDRESS: 'true'
+    restart: on-failure
     networks:
       - es-backend
 
