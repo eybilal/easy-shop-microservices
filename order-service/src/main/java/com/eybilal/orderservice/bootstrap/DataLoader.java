@@ -5,18 +5,15 @@ import com.eybilal.orderservice.model.entity.Order;
 import com.eybilal.orderservice.model.entity.OrderItem;
 import com.eybilal.orderservice.repository.OrderItemRepository;
 import com.eybilal.orderservice.repository.OrderRepository;
-import com.eybilal.orderservice.repository.event.OrderEventListener;
 import com.eybilal.orderservice.utils.JWTConstants;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.data.rest.core.event.AfterCreateEvent;
 import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
 public class DataLoader implements CommandLineRunner {
     private final OrderRepository orderRepository;
-    private final OrderEventListener orderEventListener;
     private final OrderItemRepository orderItemRepository;
     private final CustomerServiceClient customerServiceClient;
     private final InventoryServiceClient inventoryServiceClient;
@@ -37,33 +34,25 @@ public class DataLoader implements CommandLineRunner {
                 1L
         );
 
-        final Order order1 = orderRepository.save(
-                Order.builder()
-                            .orderNumber("2021-01-19/0000000001")
-                            .customerId(customer1.getId())
-                            .build()
+        final Order CreatedOrder1 = orderRepository.save(
+            Order.builder()
+                 .orderNumber("2021-01-19/0000000001")
+                 .customerId(customer1.getId())
+                 .build()
         );
-        // Run Explicitly AfterCreateEvent of AbstractRepositoryEventListener
-        // Since, it is ONLY invoked via HTTP
-        AfterCreateEvent afterCreateEvent1 = new AfterCreateEvent(order1);
-        orderEventListener.onApplicationEvent(afterCreateEvent1);
 
-        final Order order2 = orderRepository.save(
-                Order.builder()
-                        .orderNumber("2021-01-19/0000000002")
-                        .customerId(customer1.getId())
-                        .build()
+        final Order createdOrder2 = orderRepository.save(
+            Order.builder()
+                 .orderNumber("2021-01-19/0000000002")
+                 .customerId(customer1.getId())
+                 .build()
         );
-        // Run Explicitly AfterCreateEvent of AbstractRepositoryEventListener
-        // Since, it is ONLY invoked via HTTP
-        AfterCreateEvent afterCreateEvent2 = new AfterCreateEvent(order2);
-        orderEventListener.onApplicationEvent(afterCreateEvent2);
 
         inventoryServiceClient.findAllProducts(authorization).getContent().forEach(product -> {
             orderItemRepository.save(
                     OrderItem.builder()
                                     .productId(product.getId())
-                                    .order(order1)
+                                    .order(CreatedOrder1)
                                     .quantity(1)
                                     .build()
             );
@@ -71,7 +60,7 @@ public class DataLoader implements CommandLineRunner {
             orderItemRepository.save(
                     OrderItem.builder()
                             .productId(product.getId())
-                            .order(order2)
+                            .order(createdOrder2)
                             .quantity(2)
                             .build()
             );

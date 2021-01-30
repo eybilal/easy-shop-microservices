@@ -3,6 +3,7 @@ package com.eybilal.orderservice.model.entity;
 import com.eybilal.orderservice.client.Customer;
 import com.eybilal.orderservice.model.pojo.OrderStatus;
 import com.eybilal.orderservice.model.pojo.BaseEntity;
+import com.eybilal.orderservice.repository.event.OrderListener;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
@@ -13,6 +14,7 @@ import java.util.HashSet;
 
 @Entity
 @Table(name = "`order`")
+@EntityListeners(OrderListener.class)
 @NoArgsConstructor
 @Getter
 @Setter
